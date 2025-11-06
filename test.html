@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Cheque Transaction</title>
+</head>
+<body style="font-family:sans-serif; padding:20px;">
+  <h2>🧪 Test Cheque Contract</h2>
+  <button id="testBtn">Issue Cheque (MetaMask Popup)</button>
+  <p id="status"></p>
+
+  <script type="module">
+    import web3 from "./blockchain.js";
+    import chequeContract from "./chequeContract.js";
+
+    const btn = document.getElementById("testBtn");
+    const status = document.getElementById("status");
+
+    btn.addEventListener("click", async () => {
+      try {
+        const accounts = await web3.eth.getAccounts();
+        console.log("Accounts:", accounts);
+
+        if (!accounts || accounts.length === 0) {
+          status.textContent = "❌ No MetaMask account detected!";
+          return;
+        }
+
+        status.textContent = "⏳ Sending transaction... Check MetaMask popup.";
+        await chequeContract.methods
+          .issueCheque(accounts[1] || accounts[0], 100)
+          .send({ from: accounts[0] });
+
+        status.textContent = "✅ Cheque created successfully! Check Ganache blocks.";
+      } catch (err) {
+        console.error(err);
+        status.textContent = "❌ Error: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>

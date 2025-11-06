@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Login | Blockchain Cheque Verification</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, #2b3a92 0%, #34343a 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .card {
+      background: #fff;
+      color: #111;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+    .card h2 {
+      color: #1e3a8a;
+      margin-bottom: 20px;
+    }
+    .form-group { margin-bottom: 12px; text-align: left; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 15px;
+    }
+    button {
+      background: #1e3a8a;
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    button:hover { background: #3748c4; }
+    p { font-size: 14px; margin-top: 12px; }
+    a { color: #1e3a8a; text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>User Login</h2>
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" placeholder="Enter username">
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter password">
+    </div>
+    <button id="loginBtn">Login</button>
+    <p>Don't have an account? <a href="sign_up.html">Signup here</a></p>
+    <p id="msg" style="font-weight:600;margin-top:8px;"></p>
+  </div>
+
+  <script>
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const usernameInput = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const msg = document.getElementById('msg');
+
+      // Basic validation
+      if (!usernameInput || !password) {
+        msg.style.color = 'red';
+        msg.textContent = 'Please fill in all fields.';
+        return;
+      }
+
+      // Defensive parse in case stored value is corrupted
+      let users = [];
+      try {
+        users = JSON.parse(localStorage.getItem('users') || '[]');
+      } catch (e) {
+        console.error('Failed to parse users from localStorage:', e);
+        msg.style.color = 'red';
+        msg.textContent = 'Internal error reading users. Open console for details.';
+        return;
+      }
+
+      console.debug('Attempting login for:', usernameInput, 'users count:', users.length);
+
+      // Allow login by username OR email to be more flexible
+      const user = users.find(u =>
+        (String(u.username).toLowerCase() === usernameInput.toLowerCase() || String(u.email || '').toLowerCase() === usernameInput.toLowerCase())
+        && u.password === password
+      );
+
+      console.debug('Login result:', user);
+
+      if (user) {
+        // Normalize the stored loginUser to an object with at least username
+        const loginPayload = {
+          username: user.username || user.name || user.email || 'User',
+          email: user.email || '',
+          phone: user.phone || ''
+        };
+        localStorage.setItem('loginUser', JSON.stringify(loginPayload));
+        // Use location.assign to perform a navigation
+        location.assign('cheque-verification.html');
+      } else {
+        msg.style.color = 'red';
+        msg.textContent = 'Invalid username or password.';
+      }
+    });
+
+    
+  </script>
+</body>
+</html>

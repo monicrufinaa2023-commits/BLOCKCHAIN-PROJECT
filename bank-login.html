@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bank Login | Blockchain Cheque System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, #2b3a92 0%, #34343a 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .login-card {
+      background: #fff;
+      color: #111;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+    h2 {
+      color: #1e3a8a;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background: #1e3a8a;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      width: 100%;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #3748c4;
+    }
+    footer {
+      position: absolute;
+      bottom: 15px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <h2>Bank Login</h2>
+    <p>Please enter your credentials</p>
+    <input type="text" id="bankUser" placeholder="Enter Username" required />
+    <input type="password" id="bankPass" placeholder="Enter Password" required />
+    <button onclick="bankLogin()">Login</button>
+    
+  </div>
+
+  <footer>© 2025 Blockchain Cheque Verification System</footer>
+
+  <script>
+    function bankLogin() {
+      const username = document.getElementById("bankUser").value.trim();
+      const password = document.getElementById("bankPass").value.trim();
+
+      if (!username || !password) {
+        alert("Please enter both username and password!");
+        return;
+      }
+
+      const DEFAULT_PASSWORD = "admin123";
+
+      if (password === DEFAULT_PASSWORD) {
+        // Save logged-in bank info
+        localStorage.setItem("bankUser", username);
+        window.location.href = "bank-dashboard.html";
+      } else {
+        alert("❌ Invalid Password! Please try again.");
+      }
+    }
+  </script>
+</body>
+</html>
+

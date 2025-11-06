@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Signup | Blockchain Cheque Verification</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, #2b3a92 0%, #34343a 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .card {
+      background: #fff;
+      color: #111;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      width: 90%;
+      max-width: 420px;
+    }
+    .card h2 {
+      color: #1e3a8a;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .form-group { margin-bottom: 14px; }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 15px;
+      resize: none;
+    }
+    button {
+      background: #1e3a8a;
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    button:hover { background: #3748c4; }
+    p {
+      text-align: center;
+      font-size: 14px;
+      margin-top: 12px;
+    }
+    a {
+      color: #1e3a8a;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    a:hover { text-decoration: underline; }
+    #msg {
+      text-align: center;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>User Signup</h2>
+
+    <div class="form-group">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" placeholder="Enter full name">
+    </div>
+
+     <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter password">
+    </div>
+
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="you@example.com">
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Phone Number</label>
+      <input type="text" id="phone" placeholder="Enter phone number">
+    </div>
+
+    <div class="form-group">
+      <label for="address">Address</label>
+      <textarea id="address" rows="2" placeholder="Enter your address"></textarea>
+    </div>
+
+   
+    <button id="signupBtn">Signup</button>
+    <p>Already have an account? <a href="user-login.html">Login here</a></p>
+    <p id="msg"></p>
+  </div>
+
+  <script>
+    const signupBtn = document.getElementById('signupBtn');
+    const msg = document.getElementById('msg');
+
+    signupBtn.addEventListener('click', () => {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!name || !email || !phone || !address || !password) {
+        msg.style.color = 'red';
+        msg.textContent = 'Please fill in all fields.';
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+
+      if (users.find(u => u.email === email)) {
+        msg.style.color = 'red';
+        msg.textContent = 'User already exists with this email.';
+        return;
+      }
+
+      users.push({ username: name, email, phone, address, password });
+      localStorage.setItem('users', JSON.stringify(users));
+
+      msg.style.color = 'green';
+      msg.textContent = 'Signup successful! Redirecting to login...';
+
+      setTimeout(() => {
+        window.location.href = 'user-login.html';
+      }, 1500);
+    });
+  </script>
+</body>
+</html>

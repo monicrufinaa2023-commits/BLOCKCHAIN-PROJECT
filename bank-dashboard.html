@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bank Dashboard | Blockchain Cheque System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, #2b3a92 0%, #34343a 100%);
+      color: #111;
+      min-height: 100vh;
+    }
+    header {
+      background: #1c2372;
+      color: #fff;
+      text-align: center;
+      padding: 18px;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .container {
+      max-width: 1000px;
+      background: #fff;
+      margin: 40px auto;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      padding: 20px;
+    }
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 20px;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      cursor: pointer;
+      font-weight: 600;
+      color: #1e3a8a;
+      border-bottom: 3px solid transparent;
+      transition: 0.3s;
+    }
+    .tab.active {
+      border-color: #3b82f6;
+      color: #111;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 10px;
+      text-align: center;
+      font-size: 15px;
+    }
+    th {
+      background: #1e3a8a;
+      color: #fff;
+    }
+    button {
+      background: #1e3a8a;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover {
+      background: #3748c4;
+    }
+    footer {
+      text-align: center;
+      color: #fff;
+      margin: 30px 0 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>🏦 Bank Dashboard - Blockchain Cheque Verification System</header>
+
+  <div class="container">
+    <div class="tabs">
+      <div class="tab active" id="tab-pending">View Pending Cheques</div>
+      <div class="tab" id="tab-stats">Cleared Cheques</div>
+      <div class="tab" id="tab-logout">Logout</div>
+    </div>
+
+    <!-- Pending Cheques -->
+    <div id="section-pending">
+      <h3 style="color:#1e3a8a;text-align:center;">Pending Cheques</h3>
+      <table id="pendingTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cheque No</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Bank</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Cleared Cheques -->
+    <div id="section-stats" style="display:none;">
+      <h3 style="color:#1e3a8a;text-align:center;">Cleared Cheques</h3>
+      <table id="clearedTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cheque No</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Bank</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>© 2025 Blockchain Cheque Verification System</footer>
+
+     <!-- Import Web3 and contract scripts -->
+  <script type="module">
+    import web3 from "./blockchain.js";
+    import chequeContract from "./chequeContract.js";
+
+    const tabs = document.querySelectorAll(".tab");
+    const sectionPending = document.getElementById("section-pending");
+    const sectionStats = document.getElementById("section-stats");
+    const pendingBody = document.querySelector("#pendingTable tbody");
+    const clearedBody = document.querySelector("#clearedTable tbody");
+
+    // ✅ Tab switching
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+
+        if (tab.id === "tab-pending") {
+          sectionPending.style.display = "block";
+          sectionStats.style.display = "none";
+          loadPending();
+        } else if (tab.id === "tab-stats") {
+          sectionPending.style.display = "none";
+          sectionStats.style.display = "block";
+          loadCleared();
+        } else if (tab.id === "tab-logout") {
+          localStorage.removeItem("loginUser");
+          window.location.href = "index.html";
+        }
+      });
+    });
+
+    // ✅ Load pending cheques (from local storage for UI)
+    function loadPending() {
+      const cheques = JSON.parse(localStorage.getItem("cheques") || "[]");
+      const pending = cheques.filter(c => c.status === "Pending");
+      pendingBody.innerHTML = "";
+
+      if (pending.length === 0) {
+        pendingBody.innerHTML = "<tr><td colspan='8'>No pending cheques.</td></tr>";
+        return;
+      }
+
+      pending.forEach((c, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${c.number}</td>
+          <td>${c.senderName}</td>
+          <td>${c.receiverName}</td>
+          <td>${c.bankName}</td>
+          <td>${c.amount}</td>
+          <td>${c.chequeDate}</td>
+          <td>
+            
+            <button onclick="clearCheque(${i + 1})">Clear</button>
+          </td>
+        `;
+        pendingBody.appendChild(tr);
+      });
+    }
+
+    // ✅ Load cleared cheques
+    function loadCleared() {
+      const cheques = JSON.parse(localStorage.getItem("cheques") || "[]");
+      const cleared = cheques.filter(c => c.status === "Cleared");
+      clearedBody.innerHTML = "";
+
+      if (cleared.length === 0) {
+        clearedBody.innerHTML = "<tr><td colspan='8'>No cleared cheques yet.</td></tr>";
+        return;
+      }
+
+      cleared.forEach((c, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${c.number}</td>
+          <td>${c.senderName}</td>
+          <td>${c.receiverName}</td>
+          <td>${c.bankName}</td>
+          <td>${c.amount}</td>
+          <td>${c.chequeDate}</td>
+          <td style="color:green;font-weight:bold;">${c.status}</td>
+        `;
+        clearedBody.appendChild(tr);
+      });
+    }
+
+ 
+  window.clearCheque = async function (id) {
+  const ok = confirm(`Are you sure you want to clear cheque ID ${id}?`);
+  if (!ok) return;
+
+  let blockchainSucceeded = false;
+  let chequeNumber = null;
+
+  try {
+    const pending = JSON.parse(localStorage.getItem("cheques") || "[]")
+      .filter(c => c.status === "Pending");
+    if (!pending[id - 1]) throw new Error("Cheque not found in pending list.");
+    chequeNumber = pending[id - 1].number; // use cheque number as identifier
+  } catch (e) {
+    alert("Could not locate cheque in pending list.");
+    return;
+  }
+
+  try {
+    if (web3 && web3.eth && typeof web3.eth.requestAccounts === "function") {
+      const accounts = await web3.eth.requestAccounts();
+      if (accounts && accounts.length > 0) {
+        await chequeContract.methods.clearCheque(id).send({ from: accounts[0] });
+        blockchainSucceeded = true;
+        alert(`💰 Cheque No ${chequeNumber} cleared successfully on blockchain!`);
+      }
+    }
+  } catch (err) {
+    console.warn("Blockchain clear failed:", err.message);
+    alert(`Cheque ${chequeNumber} will be cleared locally.`);
+  }
+
+  // ✅ Update status in main cheques array by matching cheque number
+  const cheques = JSON.parse(localStorage.getItem("cheques") || "[]");
+  const target = cheques.find(c => c.number === chequeNumber);
+  if (target) {
+    target.status = "Cleared";
+    target.clearedAt = new Date().toISOString();
+    target.txStatus = blockchainSucceeded ? "on-chain" : "local-only";
+  }
+
+  localStorage.setItem("cheques", JSON.stringify(cheques));
+
+  // ✅ Refresh both tables
+  loadPending();
+  loadCleared();
+};
+  window.addEventListener("DOMContentLoaded", () => {
+  // Ensure Pending tab is active
+  document.getElementById("tab-pending").classList.add("active");
+  document.getElementById("section-pending").style.display = "block";
+  document.getElementById("section-stats").style.display = "none";
+  
+  // Load pending cheques after DOM and data ready
+  loadPending();
+  });
+  </script>
+</body>
+</html>

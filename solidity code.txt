@@ -1,0 +1,42 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+contract ChequeVerification {
+    struct Cheque {
+        uint256 id;
+        address issuer;
+        address payee;
+        uint256 amount;
+        bool verified;
+        bool cleared;
+    }
+
+    mapping(uint256 => Cheque) public cheques;
+    uint256 public chequeCount;
+
+    event ChequeIssued(uint256 id, address indexed issuer, address indexed payee, uint256 amount);
+    event ChequeVerified(uint256 id);
+    event ChequeCleared(uint256 id);
+
+    function issueCheque(address _payee, uint256 _amount) public {
+        chequeCount++;
+        cheques[chequeCount] = Cheque(chequeCount, msg.sender, _payee, _amount, false, false);
+        emit ChequeIssued(chequeCount, msg.sender, _payee, _amount);
+    }
+
+    function verifyCheque(uint256 _id) public {
+        Cheque storage c = cheques[_id];
+        require(msg.sender == c.payee, "Only payee can verify");
+        require(!c.verified, "Already verified");
+        c.verified = true;
+        emit ChequeVerified(_id);
+    }
+
+    function clearCheque(uint256 _id) public {
+        Cheque storage c = cheques[_id];
+        require(c.verified, "Not verified yet");
+        require(!c.cleared, "Already cleared");
+        c.cleared = true;
+        emit ChequeCleared(_id);
+    }
+}

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MetaMask Connection Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@4.0.3/dist/web3.min.js"></script>
+</head>
+<body>
+  <h2>🦊 Connect MetaMask Demo</h2>
+  <button id="connectBtn">Connect Wallet</button>
+  <p id="status"></p>
+
+  <script>
+    const button = document.getElementById("connectBtn");
+    const status = document.getElementById("status");
+
+    button.onclick = async () => {
+      if (window.ethereum) {
+        try {
+          const web3 = new Web3(window.ethereum);
+          await window.ethereum.request({ method: "eth_requestAccounts" });
+          const accounts = await web3.eth.getAccounts();
+          status.innerText = "✅ Connected wallet: " + accounts[0];
+          console.log("Connected wallet:", accounts[0]);
+        } catch (err) {
+          status.innerText = "❌ Connection failed: " + err.message;
+          console.error(err);
+        }
+      } else {
+        status.innerText = "🦊 Please install MetaMask to continue.";
+      }
+    };
+  </script>
+</body>
+</html>
